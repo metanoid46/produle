@@ -1,18 +1,34 @@
 import React from 'react';
-import { Input} from 'antd';
+import { Button, Input, Dropdown} from 'antd';
 import logoDark from '../../assets/logoDark.png'
 import logoLight from '../../assets/logoLight.png'
 import { Avatar } from "antd";
 import { useContext } from 'react';
 import { ThemeContext } from '../../Themes/ThemeManager';
+import { useNavigate } from 'react-router-dom';
+import API from '../../API/axiosIOnstance';
 
 const { Search } = Input;
 
 const AppsBar = () => {
-
-const onSearch=()=>{
-  console.log("not found search")
-}
+  const navigate=useNavigate();
+    const handleLogout = async()=>{
+    const res= await API.get('user/logout');
+    navigate('/login');
+  }
+  const items=[
+    {key:1,
+     label:(
+      <Button onClick={()=>{navigate('/profile')}}>Profile</Button>
+     )
+    },
+     {key:2,
+     label:(
+      <Button danger onClick={handleLogout}>Logout</Button>
+     )
+    }
+  ]
+ 
 
 const {isDarkMode}=useContext(ThemeContext);
   return (
@@ -25,8 +41,9 @@ const {isDarkMode}=useContext(ThemeContext);
         
       </div>
       <div className="profile" style={{display:'flex', gap:'2vw'}}>
-        <Search placeholder="Input search text" onSearch={onSearch} style={{ width: 200 }} />
-        <Avatar/>
+        <Dropdown menu={{ items }} placement="bottomLeft">
+         <Avatar/>
+      </Dropdown>
       </div>
     </div>
   );

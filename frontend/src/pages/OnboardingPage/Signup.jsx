@@ -55,8 +55,8 @@ const Signup = () => {
   return (
     <div
     style={{
-        height: '100%',
-        width: '100%',
+        height: '100vh',
+        width: '100vw',
         display: 'flex',
         backgroundColor: backgroundColor,
         flexDirection:'column',

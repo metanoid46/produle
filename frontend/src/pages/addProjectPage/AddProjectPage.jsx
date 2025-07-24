@@ -19,11 +19,12 @@ const { TextArea } = Input;
 const { Option } = Select;
 const isMobile = window.innerWidth < 768;
 const AddProjectPage = () => {
-  const [form] = Form.useForm();
-  const navigate = useNavigate();
+const [form] = Form.useForm();
+const navigate = useNavigate();
 
 const onFinish = async (values) => {
   console.log('Form values:', values);
+  
   try {
     const res = await API.post('/projects/addproject', {
       name: values.name,
@@ -119,7 +120,7 @@ const onFinish = async (values) => {
                       {...restField}
                       
                       name={[name, 'name']}
-                      rules={[{ required: true, message: 'Enter step name' }]}
+                      rules={[{ required: false, message: 'Enter step name' }]}
                     >
                       <Input placeholder={`Step ${index + 1} Name`} />
                     </Form.Item>
@@ -127,7 +128,7 @@ const onFinish = async (values) => {
                     <Form.Item
                       {...restField}
                       name={[name, 'status']}
-                      rules={[{ required: true }]}
+                      rules={[{ required: false }]}
                     >
                       <Select style={{ width: 150 }}>
                         <Option value="Not Started">Not Started</Option>
@@ -139,7 +140,7 @@ const onFinish = async (values) => {
                     <Form.Item
                       {...restField}
                       name={[name, 'order']}
-                      rules={[{ required: true, message: 'Order required' }]}
+                      rules={[{ required: false, message: 'Order required' }]}
                     >
                       <Input type="number" placeholder="Order" style={{ width: 80 }} />
                     </Form.Item>
