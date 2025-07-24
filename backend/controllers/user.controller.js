@@ -121,3 +121,19 @@ export const logout = (req, res) => {
   });
   res.status(200).json({ message: 'Logged out successfully' });
 };
+
+export const me= async(req,res)=>{
+  try{
+  const userId=req.user._id;
+  const user = await User.findById(userId);
+
+  if(!user){
+    return res.status(400).json({ status: 'fail', message: 'Invalid user' });
+  }
+
+  return res.status(200).json({status:'success', data:user})
+  }catch(error){
+    console.error(error);
+    res.status(400).json({ status: 'fail', message: error.message });
+  }
+}

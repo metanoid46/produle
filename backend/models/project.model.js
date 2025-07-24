@@ -3,13 +3,11 @@ import mongoose from "mongoose";
 export const stepSchema=new mongoose.Schema({
     name:{
         type:String,
-        required:true
     },
      status:{
         type:String,
         enum:['Not Started','In progress','Completed'],
-        default:'Not Started',
-        required:true
+        
     },
     order: Number,
     startedAt: Date,
@@ -42,7 +40,10 @@ const projectSchema=new mongoose.Schema({
         default:'Not Started',
         required:true
     },
-    steps: [stepSchema], 
+    steps:{
+        type: [stepSchema],
+        default:[]
+    }, 
     createdAt: {
         type: Date,
         default: Date.now,

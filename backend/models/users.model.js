@@ -4,6 +4,7 @@ import validator from "validator";
 
 
 const userSchema= new mongoose.Schema({
+
     userMail:{
         type:String,
         required:true,

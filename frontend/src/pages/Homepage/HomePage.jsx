@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Button, message, Carousel, Card, Select, Empty } from 'antd';
+import { Button, message, Carousel, Card, Select, Empty,Popconfirm } from 'antd';
 import { ThemeContext } from '../../Themes/ThemeManager';
 import API from '../../API/axiosIOnstance';
 import { useNavigate } from 'react-router-dom';
+
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -28,14 +29,13 @@ const HomePage = () => {
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 5000);
+    const interval = setInterval(fetchData, 10);
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
   const fetchEnums = async () => {
     const res = await API.get('/projects/project-enums');
-    console.log(res.data)
     setEnums(res.data);;
 
   };
@@ -48,23 +48,41 @@ const HomePage = () => {
         const res = await API.put(`/projects/${id}`, { status: value });
 
         if (res.data.success) {
-          message.success('Project status updated successfully');
-          // Optionally, trigger a refresh or update state here
+          messageApi.success('Project status updated successfully');
+    
         } else {
-          message.error(res.data.message || 'Failed to update status');
+          messageApi.error(res.data.message || 'Failed to update status');
         }
       } catch (error) {
         console.error('Status update failed:', error);
-        message.error('An error occurred while updating the status');
+        messageApi.error('An error occurred while updating the status');
       }
     };
+
+
+  const handlePriorityChange = async (id, value) => {
+      try {
+        const res = await API.put(`/projects/${id}`, { priority: value });
+
+        if (res.data.success) {
+          messageApi.success('Project status updated successfully');
+    
+        } else {
+          messageApi.error(res.data.message || 'Failed to update status');
+        }
+      } catch (error) {
+        console.error('Status update failed:', error);
+        messageApi.error('An error occurred while updating the status');
+      }
+    };
+
 
         const handleStepStatuschange = async (projectId, stepId, newStatus) => {
         try {
           const res = await API.put(`/projects/${projectId}/steps/${stepId}`, { status: newStatus });
 
           if (res.data.success) {
-            message.success('Step status updated');
+            messageApi.success('Step status updated');
 
         
             setProjects((prev) =>
@@ -80,14 +98,25 @@ const HomePage = () => {
               )
             );
           } else {
-            message.error(res.data.message || 'Failed to update step status');
+            messageApi.error(res.data.message || 'Failed to update step status');
           }
         } catch (error) {
           console.error('Error updating step status:', error);
-          message.error('Error updating step status');
+          messageApi.error('Error updating step status');
         }
       };
 
+      const deleteProject=async (id)=>{
+        try{
+          const res= await API.delete(`/projects/${id}`)
+          if(res.data.success){
+             messageApi.success('Successfully deleted the file')
+          }
+        }catch(err){
+        messageApi.success('Error in deleting the Project')
+        console.log(err)
+      }
+      }
 
   return (
     <div style={{ padding: '0 2rem' }}>
@@ -124,7 +153,18 @@ const HomePage = () => {
                 <Card
                   title={project.name}
                   extra={
-                    <div>
+                    <div style={{
+                      display:'flex',
+                      flexDirection:'row',
+                      width:'100%',
+                      gap:'0.5vw'
+                    }}>
+                      <Select
+                        value={project.priority}
+                        style={{ width: 120 }}
+                        options={enums.priority.map((s) => ({ label: s, value: s }))}
+                        onChange={(value) => handlePriorityChange(project._id, value)}
+                      />
                       <Select
                         value={project.status}
                         style={{ width: 120 }}
@@ -132,6 +172,16 @@ const HomePage = () => {
                         onChange={(value) => handleStatusChange(project._id, value)}
                       />
                       <Button onClick={()=>navigate(`/editProject/${project._id}`)}style={{backgroundColor:bgColor, color:text}}>Edit</Button>
+                      <Popconfirm
+                        title="Delete the task"
+                        description="Are you sure to delete this task?"
+                        onConfirm={() => deleteProject(project._id)}
+                        onCancel={() => console.log('Cancel delete')}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button danger>Delete</Button>
+                      </Popconfirm>
                     </div>
 
                   }
@@ -145,11 +195,12 @@ const HomePage = () => {
                   </div>
 
                   <p><strong>Steps:</strong></p>
+                  <div style={{overflowY:'auto'}}>
                   <ul>
                     {project.steps?.length > 0 ? (
                       project.steps.map((step, index) => (
-                        <li key={index}>
-                          {step.name} - 
+                        <li key={index} style={{display:'flex', flexDirection:'row', justifyContent:'space-between', paddingBottom:'1rem'}}>
+                          {step.name} 
                           <Select 
                             value={step.status}
                             style={{ width: 120 }}
@@ -163,6 +214,7 @@ const HomePage = () => {
                       <li>No steps defined.</li>
                     )}
                   </ul>
+                  </div>
                 </Card>
 
                 {/* Right - Metrics & Timeline */}

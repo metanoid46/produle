@@ -48,8 +48,8 @@ const Login = () => {
   return (
         <div
         style={{
-            height: '100%',
-            width: '100%',
+            height: '100vh',
+            width: '100vw',
             display: 'flex',
             backgroundColor: backgroundColor,
             flexDirection:'column',
@@ -115,11 +115,16 @@ const Login = () => {
             placeholder="Password"
             style={{ marginBottom: '1rem', width: isMobile ? '100%' : '50%' }}
           />
+          <div style={{display:'flex',width:'50%', alignContent:'center',justifyContent:'flex-end'}}>
+            <a>Forgot password</a>
+          </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Button type="primary" onClick={handleLogin}>
               Login
             </Button>
-            <Button onClick={() => navigate('/')}>Signup</Button>
+            <Button onClick={() => navigate('/')}>
+              Signup
+            </Button>
           </div>
         </div>
       </Card>
