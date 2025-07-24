@@ -26,6 +26,7 @@ const MainLayout = () => {
           justifyContent: 'space-between',
           padding: '1vw',
           gap: '2vw',
+          background: token.colorBgLayout,
           flexShrink: 0, 
         }}>
         
@@ -34,7 +35,7 @@ const MainLayout = () => {
       </header>
       <main style={{
           flex: 1,
-          overflowY: 'auto',
+          overflowY: 'hidden',
           padding: '1rem',
         }}>
          <Outlet />

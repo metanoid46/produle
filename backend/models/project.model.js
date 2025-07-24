@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const stepSchema=new mongoose.Schema({
+export const stepSchema=new mongoose.Schema({
     name:{
         type:String,
         required:true
@@ -47,9 +47,15 @@ const projectSchema=new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    startedAt: Date,
-    updatedAt: Date,
-    completedAt:Date,
+    startedAt: {
+        type:Date
+    },
+    updatedAt: {
+        type:Date
+    },
+    completedAt:{
+        type:Date
+    },
     user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 });
 

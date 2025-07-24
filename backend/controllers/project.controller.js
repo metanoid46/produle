@@ -1,4 +1,4 @@
-import Project from '../models/project.model.js';
+import Project ,{ stepSchema } from '../models/project.model.js';
 import mongoose from 'mongoose'
 
 export const getAllProjects = async (req, res) => {
@@ -130,5 +130,46 @@ export const updateProject = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+// controllers/projectController.js
+export const updateStepStatus = async (req, res) => {
+  const { projectId, stepId } = req.params;
+  const { status } = req.body;
+
+  try {
+    const project = await Project.findById(projectId);
+    if (!project) return res.status(404).json({ success: false, message: 'Project not found' });
+
+    const step = project.steps.id(stepId);
+    if (!step) return res.status(404).json({ success: false, message: 'Step not found' });
+
+    step.status = status;
+    step.updatedAt = new Date();
+
+    await project.save();
+    res.json({ success: true, message: 'Step status updated', step });
+  } catch (err) {
+    console.error('Error updating step status:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+
+export const getEnums=(req, res) => {
+  try {
+    const statusEnum = Project.schema.path('status').enumValues;
+    const priorityEnum = Project.schema.path('priority').enumValues;
+        const stepStatusEnum = stepSchema.path('status').enumValues;
+
+    res.json({
+      status: statusEnum,
+      priority: priorityEnum,
+      stepStatus: stepStatusEnum || [],
+    });
+  } catch (err) {
+    console.error('Error fetching enums:', err);
+    res.status(500).json({ error: 'Failed to get enum values' });
   }
 };

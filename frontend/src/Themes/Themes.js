@@ -5,11 +5,11 @@ export const lightTheme = {
   algorithm: theme.defaultAlgorithm,
   token: {
     colorPrimary: '#007bff',
-    colorBgLayout: '#f8f9fa',
+    colorBgLayout: '#bdc7d1ff',
     colorTextBase: '#212529',
     colorTextSecondary: '#6c757d',
-    colorBorder: '#dee2e6',
-    colorSplit: '#dee2e6',
+    colorBorder: '#87888aff',
+    colorSplit: '#73808dff',
   },
 };
 

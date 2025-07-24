@@ -1,133 +1,201 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Button, Select, Divider, Checkbox, Flex } from 'antd';
+import React, { useEffect, useState, useContext } from 'react';
+import { Button, message, Carousel, Card, Select, Empty } from 'antd';
 import { ThemeContext } from '../../Themes/ThemeManager';
 import API from '../../API/axiosIOnstance';
 import { useNavigate } from 'react-router-dom';
-import dayjs from 'dayjs';
-
-const { Option } = Select;
 
 const HomePage = () => {
   const navigate = useNavigate();
   const { token } = useContext(ThemeContext);
-  const background = token.colorTextSecondary;
-  const color = token.colorBgLayout;
-
+  const [messageApi, contextHolder] = message.useMessage();
+  const bgColor = token.colorTextBase;
+  const text=token.colorBgLayout;
+    const [enums, setEnums] = useState({
+      status: [],
+      priority: [],
+      stepStatus: [],
+    });
   const [projects, setProjects] = useState([]);
-  const [selectedProject, setSelectedProject] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await API.get('/projects/');
         setProjects(res.data.data);
-        if (res.data.data.length > 0) {
-          setSelectedProject(res.data.data[0]); 
-        }
       } catch (error) {
-        console.error('Error fetching projects:', error);
+        messageApi.error('Failed to fetch projects: ' + error.message);
       }
     };
 
     fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
   }, []);
 
-  const handleProjectChange = (projectId) => {
-    const project = projects.find((proj) => proj._id === projectId);
-    setSelectedProject(project);
+  useEffect(() => {
+  const fetchEnums = async () => {
+    const res = await API.get('/projects/project-enums');
+    console.log(res.data)
+    setEnums(res.data);;
+
   };
 
+  fetchEnums();
+}, []);
+
+    const handleStatusChange = async (id, value) => {
+      try {
+        const res = await API.put(`/projects/${id}`, { status: value });
+
+        if (res.data.success) {
+          message.success('Project status updated successfully');
+          // Optionally, trigger a refresh or update state here
+        } else {
+          message.error(res.data.message || 'Failed to update status');
+        }
+      } catch (error) {
+        console.error('Status update failed:', error);
+        message.error('An error occurred while updating the status');
+      }
+    };
+
+        const handleStepStatuschange = async (projectId, stepId, newStatus) => {
+        try {
+          const res = await API.put(`/projects/${projectId}/steps/${stepId}`, { status: newStatus });
+
+          if (res.data.success) {
+            message.success('Step status updated');
+
+        
+            setProjects((prev) =>
+              prev.map((proj) =>
+                proj._id === projectId
+                  ? {
+                      ...proj,
+                      steps: proj.steps.map((step) =>
+                        step._id === stepId ? { ...step, status: newStatus } : step
+                      ),
+                    }
+                  : proj
+              )
+            );
+          } else {
+            message.error(res.data.message || 'Failed to update step status');
+          }
+        } catch (error) {
+          console.error('Error updating step status:', error);
+          message.error('Error updating step status');
+        }
+      };
+
+
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        height: '100%',
-        width: '100%',
-        padding: '0 5%',
-        aCheckboxgnItems: 'center',
-      }}
-    >
-      <div style={{ width: '60%', margin: '2rem 0',display: 'flex', aCheckboxgnItems:'center',flexDirection: 'row', justifyContent:'center', gap:'2vw' }}>
-        <Select
-          style={{ width: '100%' }}
-          placeholder="Select a project"
-          onChange={handleProjectChange}
-          value={selectedProject?._id}
-        >
-          {projects.map((project) => (
-            <Option key={project._id} value={project._id}>
-              {project.name}
-            </Option>
-          ))}
-        </Select>
-        <Button type="primary"onClick={() => navigate('/addProject')}>
+    <div style={{ padding: '0 2rem' }}>
+      {contextHolder}
+
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: '1.5rem',
+        }}
+      >
+        <h1>Projects</h1>
+        <Button  onClick={() => navigate('/addProject')}>
           Add Project
         </Button>
       </div>
 
-      {selectedProject ? (
-        <div
-          style={{
-            width: '80%',
-            backgroundColor: background,
-            padding: '2rem',
-            borderRadius: '12px',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.1)',
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <div
-                    style={{
-                    height: '1rem',
-                    width: '1rem',
-                    borderRadius: '50%',
-                    backgroundColor: 'blue',
-                    }}
-                ></div>
-                <h2 style={{ color, margin: 0 }}>{selectedProject.name}</h2>
-            </div>
+      <Carousel arrows infinite style={{  padding: '2rem', borderRadius: '1rem' }}>
+        {projects.length > 0 ? (
+          projects.map((project) => (
+            <div key={project._id} style={{ width: '100%' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '2rem',
+                  height: '65vh',
+                  width: '90vw',
+                  margin: '0 auto',
+                }}
+              >
+                <Card
+                  title={project.name}
+                  extra={
+                    <div>
+                      <Select
+                        value={project.status}
+                        style={{ width: 120 }}
+                        options={enums.status.map((s) => ({ label: s, value: s }))}
+                        onChange={(value) => handleStatusChange(project._id, value)}
+                      />
+                      <Button onClick={()=>navigate(`/editProject/${project._id}`)}style={{backgroundColor:bgColor, color:text}}>Edit</Button>
+                    </div>
 
-            <div style={{ display: 'flex', gap: '1vw' }}>
-              <p style={{ color }}>{selectedProject.startDate ? dayjs(selectedProject.startDate).format('MMM D, YYYY') : 'N/A'}</p>
-              <p style={{ color }}> - </p>
-              <p style={{ color }}>{selectedProject.endDate ? dayjs(selectedProject.endDate).format('MMM D, YYYY') : 'N/A'}</p>
+                  }
+                  style={{ flex: 2, overflowY: 'auto' }}
+                >
+                  <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+                    <p style={{ flex: 1 }}>{project.description || 'No description provided.'}</p>
+                    <span style={{ whiteSpace: 'nowrap', marginLeft: '1rem' }}>
+                      Start Date: {new Date(project.startDate).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  <p><strong>Steps:</strong></p>
+                  <ul>
+                    {project.steps?.length > 0 ? (
+                      project.steps.map((step, index) => (
+                        <li key={index}>
+                          {step.name} - 
+                          <Select 
+                            value={step.status}
+                            style={{ width: 120 }}
+                            options={enums.stepStatus.map((s) => ({ label: s, value: s }))}
+                            onChange={(value)=>handleStepStatuschange(project._id,step._id,value)}
+                          />
+
+                        </li>
+                      ))
+                    ) : (
+                      <li>No steps defined.</li>
+                    )}
+                  </ul>
+                </Card>
+
+                {/* Right - Metrics & Timeline */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <Card style={{ flex: 1 }}>
+                    <p>Metrics or summary info here.</p>
+                  </Card>
+                  <Card style={{ flex: 1 }}>
+                    <p>Timeline or task info here.</p>
+                  </Card>
+                </div>
+              </div>
             </div>
+          ))
+        ) : (
+          <div style={{ width: '100%' }}>
+            <Card
+              style={{
+                height: '65vh',
+                width: '90vw',
+                margin: '0 auto',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Empty description="No projects at the moment" />
+              <p>Add some projects to get started.</p>
+            </Card>
           </div>
-          <Dropdown menu={{  }} placement="bottomLeft">
-                <Button>bottomLeft</Button>
-            </Dropdown>
-          <Divider />
-          <div>
-                {selectedProject.steps && selectedProject.steps.length > 0 ? (
-            <div style={{ marginTop: '1rem', maxwidth:'80%',maxHeight:'50%',overflowY:'auto' }}>
-              <strong style={{ color }}>Steps:</strong>
-              <ul>
-                {selectedProject.steps.map((step, index) => (
-                  <Checkbox key={index} style={{ color ,display:'flex' }}>
-                    {step.name} - {step.status}
-                  </Checkbox>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <p style={{ color }}>No steps available.</p>
-          )}
-            </div>
-          <p style={{ color }}><strong>Description:</strong> {selectedProject.description || 'No description'}</p>
-          <p style={{ color }}><strong>Priority:</strong> {selectedProject.priority}</p>
-          <p style={{ color }}><strong>Status:</strong> {selectedProject.status}</p>
-          <p style={{ color }}><strong>Created:</strong> {dayjs(selectedProject.createdAt).format('MMM D, YYYY')}</p>
-
-          
-        </div>
-      ) : (
-        <p style={{ color }}>No project selected.</p>
-      )}
-
-     
+        )}
+      </Carousel>
     </div>
   );
 };

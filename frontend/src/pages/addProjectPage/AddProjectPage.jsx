@@ -42,9 +42,10 @@ const onFinish = async (values) => {
 };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <Card>
-        <Title level={3}>Create New Project</Title>
+    <div style={{ padding: '2rem',  }}>
+      <Card style={{overflow:'auto', height:'80vh'}}>
+        <Title level={3} style={{position:'sticky', display:'flex'}}>Create New Project</Title>
+        
         <Form
           form={form}
           layout="vertical"

@@ -2,6 +2,7 @@ import React, { useContext,useState } from 'react';
 import { Card, Input, Button, Typography , message} from 'antd';
 import { ThemeContext } from '../../Themes/ThemeManager';
 import { useNavigate } from 'react-router-dom';
+import logoDark from '../../assets/logoDark.png'
 import API from '../../API/axiosIOnstance';
 
 
@@ -53,6 +54,21 @@ const Signup = () => {
 
   return (
     <div
+    style={{
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        backgroundColor: backgroundColor,
+        flexDirection:'column',
+        overflow:'hidden'
+      }}
+    >
+    <img src={logoDark} alt="logo" style={{
+      width:'3vw',
+      height:'auto',
+        objectFit: 'contain',}}/>
+
+    <div
       style={{
         height: '100%',
         width: '100%',
@@ -61,9 +77,9 @@ const Signup = () => {
         justifyContent: 'center',
         backgroundColor: backgroundColor,
         fontFamily: '"Pixelify Sans", sans-serif'
-
       }}
     >
+    
         {contextHolder}
       <Card
         style={{
@@ -107,6 +123,7 @@ const Signup = () => {
           </div>
         </div>
       </Card>
+    </div>
     </div>
   );
 };

@@ -7,6 +7,7 @@ import Signup from './pages/OnboardingPage/Signup.jsx';
 import Login from './pages/OnboardingPage/Login.jsx';
 import HomePage from './pages/Homepage/HomePage.jsx';
 import AddProjectPage from './pages/addProjectPage/AddProjectPage.jsx';
+import EditProjectPage from './pages/editProjectPage/EditProjectPage.jsx';
 
 
 const { Text } = Typography;
@@ -21,6 +22,7 @@ const App = () => {
         <Route element={<MainLayout/>}>
          <Route path="/home" element={<HomePage />} />
          <Route path="/addProject" element={<AddProjectPage />} />
+         <Route path="/editProject/:id" element={<EditProjectPage/>}/>
         </Route>
       </Routes>
 

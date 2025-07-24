@@ -2,8 +2,8 @@ import express from 'express';
 import dotenv from 'dotenv'
 import cookieParser from 'cookie-parser'
 import { connectDB } from './config/db.js';
-import projectRoutes from './rotues/project.route.js'
-import userRoutes from './rotues/user.route.js'
+import projectRoutes from './routes/project.route.js'
+import userRoutes from './routes/user.route.js'
 import jwt from 'jsonwebtoken'
 import cors from 'cors'
 

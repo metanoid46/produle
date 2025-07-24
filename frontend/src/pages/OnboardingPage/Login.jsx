@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Card, Input, Button, Typography, message } from 'antd';
 import { ThemeContext } from '../../Themes/ThemeManager';
 import { useNavigate } from 'react-router-dom';
+import logoDark from '../../assets/logoDark.png'
 import API from '../../API/axiosIOnstance';
 
 const { Title } = Typography;
@@ -45,6 +46,20 @@ const Login = () => {
   };
 
   return (
+        <div
+        style={{
+            height: '100%',
+            width: '100%',
+            display: 'flex',
+            backgroundColor: backgroundColor,
+            flexDirection:'column',
+            overflow:'hidden'
+          }}
+        >
+        <img src={logoDark} alt="logo" style={{
+          width:'3vw',
+          height:'auto',
+            objectFit: 'contain',}}/>
     <div
       style={{
         
@@ -58,6 +73,8 @@ const Login = () => {
 
       }}
     >
+
+        
       {contextHolder}
       <Card
         style={{
@@ -106,6 +123,7 @@ const Login = () => {
           </div>
         </div>
       </Card>
+    </div>
     </div>
   );
 };

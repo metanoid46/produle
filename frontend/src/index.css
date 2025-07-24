@@ -8,3 +8,7 @@ html, body, #root {
   font-optical-sizing: auto;
   
 }
+
+.ant-typography, .ant-btn, .ant-input, .ant-select, .ant-menu, .ant-table, .ant-card {
+  font-family: "Pixelify Sans", sans-serif !important;
+}

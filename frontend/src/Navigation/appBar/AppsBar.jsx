@@ -14,10 +14,9 @@ const onSearch=()=>{
   console.log("not found search")
 }
 
-const {token,isDarkMode}=useContext(ThemeContext);
-const bgcolor=token.colorBgLayout;
+const {isDarkMode}=useContext(ThemeContext);
   return (
-    <div className="appBar" style={{width:'100%',display:'flex', alignItems:'center',justifyContent:'space-between',backgroundColor:bgcolor}}>
+    <div className="appBar" style={{width:'100%',display:'flex', alignItems:'center',justifyContent:'space-between'}}>
       <div className="logo" >
         <img src={isDarkMode ? logoDark : logoLight} alt="logo" style={{
         width:'3vw',
