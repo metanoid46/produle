@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { Card, Input, Button, Typography, message } from 'antd';
 import { ThemeContext } from '../../Themes/ThemeManager';
 import { useNavigate } from 'react-router-dom';
-import logoDark from '../../assets/logoDark.png'
+import logoLight from '../../assets/logoLight.png'
 import API from '../../API/axiosIOnstance';
 
 const { Title } = Typography;
@@ -56,10 +56,7 @@ const Login = () => {
             overflow:'hidden'
           }}
         >
-        <img src={logoDark} alt="logo" style={{
-          width:'3vw',
-          height:'auto',
-            objectFit: 'contain',}}/>
+  
     <div
       style={{
         
@@ -77,9 +74,16 @@ const Login = () => {
         
       {contextHolder}
       <Card
+      title={
+        <img src={logoLight} alt="logo" style={{
+          width:'3vw',
+          height:'auto',
+          padding:'1vh',
+            objectFit: 'contain',}}/>
+      }
         style={{
           width: '80%',
-          height: '80%',
+          height: '90%',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
@@ -115,9 +119,7 @@ const Login = () => {
             placeholder="Password"
             style={{ marginBottom: '1rem', width: isMobile ? '100%' : '50%' }}
           />
-          <div style={{display:'flex',width:'50%', alignContent:'center',justifyContent:'flex-end'}}>
-            <a>Forgot password</a>
-          </div>
+        
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <Button type="primary" onClick={handleLogin}>
               Login

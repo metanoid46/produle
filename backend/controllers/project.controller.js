@@ -1,9 +1,11 @@
-import Project ,{ stepSchema } from '../models/project.model.js';
-import mongoose from 'mongoose'
+import Project, { stepSchema } from '../models/project.model.js';
+import mongoose from 'mongoose';
 
 export const getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find({ user: req.user._id }).lean().sort({ createdAt: -1 });
+    const projects = await Project.find({ user: req.user._id })
+      .lean()
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -18,8 +20,6 @@ export const getAllProjects = async (req, res) => {
     });
   }
 };
-
-
 
 export const getProjectById = async (req, res) => {
   const { id } = req.params;
@@ -38,13 +38,11 @@ export const getProjectById = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Project not found' });
     }
 
-    // Only return if user owns the project
     if (String(project.user) !== String(req.user._id)) {
       return res.status(403).json({ success: false, message: 'Not authorized to view this project' });
     }
 
     res.status(200).json({ success: true, data: project });
-
   } catch (error) {
     console.error('Error fetching project:', error);
     res.status(500).json({
@@ -54,26 +52,27 @@ export const getProjectById = async (req, res) => {
   }
 };
 
+export const createProject = async (req, res) => {
+  const project = req.body;
 
-export const createProject=async(req,res)=>{
+  if (!project.name) {
+    return res.status(400).json({ success: false, message: 'Please provide a name' });
+  }
+  project.user = req.user._id;
+  const newProject = new Project(project);
 
-    const project=req.body;
+  try {
+    await newProject.save();
 
-    if (!project.name){
-        return res.status(400).json({success:false, message:'Please provide a name'});
-    }
-    project.user = req.user._id;
-    const newProject= new Project(project);
+    // Emit real-time event
+    req.app.get('io').emit('projectCreated', newProject);
 
-    try{
-        await newProject.save();
-        res.status(201).json({success:true, message:'Data added successfully', data:newProject})
-    }catch (error){
-        console.error(`Error in project creation: ${error.message}`)
-        res.status(500).json({success:false,message:"server Error"})
-    }
+    res.status(201).json({ success: true, message: 'Data added successfully', data: newProject });
+  } catch (error) {
+    console.error(`Error in project creation: ${error.message}`);
+    res.status(500).json({ success: false, message: 'Server Error' });
+  }
 };
-
 
 export const deleteProject = async (req, res) => {
   const { id } = req.params;
@@ -91,14 +90,14 @@ export const deleteProject = async (req, res) => {
 
     await project.deleteOne();
 
-    res.status(200).json({ success: true, message: 'Project deleted' });
+    // Emit real-time event
+    req.app.get('io').emit('projectDeleted', { id });
 
+    res.status(200).json({ success: true, message: 'Project deleted' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
-
-
 
 export const updateProject = async (req, res) => {
   const { id } = req.params;
@@ -126,14 +125,15 @@ export const updateProject = async (req, res) => {
       runValidators: true,
     });
 
-    res.status(200).json({ success: true, data: updatedProject });
+    // Emit real-time event
+    req.app.get('io').emit('projectUpdated', updatedProject);
 
+    res.status(200).json({ success: true, data: updatedProject });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
 
-// controllers/projectController.js
 export const updateStepStatus = async (req, res) => {
   const { projectId, stepId } = req.params;
   const { status } = req.body;
@@ -149,6 +149,10 @@ export const updateStepStatus = async (req, res) => {
     step.updatedAt = new Date();
 
     await project.save();
+
+    // Emit real-time event
+    req.app.get('io').emit('stepStatusUpdated', { projectId, step });
+
     res.json({ success: true, message: 'Step status updated', step });
   } catch (err) {
     console.error('Error updating step status:', err);
@@ -156,12 +160,11 @@ export const updateStepStatus = async (req, res) => {
   }
 };
 
-
-export const getEnums=(req, res) => {
+export const getEnums = (req, res) => {
   try {
     const statusEnum = Project.schema.path('status').enumValues;
     const priorityEnum = Project.schema.path('priority').enumValues;
-        const stepStatusEnum = stepSchema.path('status').enumValues;
+    const stepStatusEnum = stepSchema.path('status').enumValues;
 
     res.json({
       status: statusEnum,

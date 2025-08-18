@@ -13,7 +13,8 @@ const { Search } = Input;
 const AppsBar = () => {
   const navigate=useNavigate();
     const handleLogout = async()=>{
-    const res= await API.get('user/logout');
+    const res= await API.get('/user/logout');
+    console.log(res)
     navigate('/login');
   }
   const items=[

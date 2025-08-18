@@ -36,7 +36,7 @@ const MainLayout = () => {
       <main style={{
           flex: 1,
           overflowY: 'hidden',
-          padding: '1rem',
+          padding: '0rem 1rem',
         }}>
          <Outlet />
       </main>

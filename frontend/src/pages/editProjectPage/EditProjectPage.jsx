@@ -13,7 +13,7 @@ import {
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import API from '../../API/axiosIOnstance';
-import dayjs from 'dayjs'; // for date formatting
+import dayjs from 'dayjs';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -25,7 +25,6 @@ const EditProjectPage = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
 
-  // ✅ Fetch project data on mount
   useEffect(() => {
     const fetchProject = async () => {
       try {
@@ -36,7 +35,12 @@ const EditProjectPage = () => {
         if (project.startDate) project.startDate = dayjs(project.startDate);
         if (project.endDate) project.endDate = dayjs(project.endDate);
 
-        form.setFieldsValue(project);
+        // Ensure steps exist
+        const steps = project.steps && project.steps.length > 0
+          ? project.steps.sort((a, b) => a.order - b.order)
+          : [{ name: '', status: 'Not Started', order: 1 }];
+
+        form.setFieldsValue({ ...project, steps });
       } catch (err) {
         console.error("Failed to fetch project:", err);
       }
@@ -47,7 +51,14 @@ const EditProjectPage = () => {
 
   const onFinish = async (values) => {
     try {
-      await API.put(`/projects/${id}`, values);
+      // Convert dayjs objects to ISO strings
+      const payload = {
+        ...values,
+        startDate: values.startDate ? values.startDate.toISOString() : null,
+        endDate: values.endDate ? values.endDate.toISOString() : null,
+      };
+
+      await API.put(`/projects/${id}`, payload);
       navigate('/home');
     } catch (err) {
       console.error("Failed to update project:", err);

@@ -5,7 +5,7 @@ export const lightTheme = {
   algorithm: theme.defaultAlgorithm,
   token: {
     colorPrimary: '#007bff',
-    colorBgLayout: '#bdbdbdff',
+    colorBgLayout: '#9b9b9bff',
     colorTextBase: '#212529',
     colorTextSecondary: '#6c757d',
     colorBorder: '#87888aff',

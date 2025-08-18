@@ -3,6 +3,7 @@ html, body, #root {
   padding: 0;
   height: 100%;
   width: 100%;
+  font-size: 24px;
   box-sizing: border-box;
   font-family: "Pixelify Sans", sans-serif;
   font-optical-sizing: auto;
