@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import nodemailer from "nodemailer";
 import {sendVerificationEmail} from '../utils/verification_mail.js'
 
-// ---------------- Signup ----------------
 export const signup = async (req, res) => {
   const { userMail, userName, password, passwordConfirm } = req.body;
 
@@ -52,7 +51,6 @@ export const signup = async (req, res) => {
   }
 };
 
-// controllers/user.controller.js
 
 export const login = async (req, res) => {
   const { userMail, password } = req.body;
@@ -96,7 +94,6 @@ export const login = async (req, res) => {
   }
 };
 
-// ---------------- Logout ----------------
 export const logout = (req, res) => {
   res.clearCookie('token', {
     httpOnly: true,
@@ -111,7 +108,6 @@ export const logout = (req, res) => {
   res.status(200).json({ success: true, message: 'Logged out successfully' });
 };
 
-// ---------------- Get Current User ----------------
 export const me = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
@@ -125,7 +121,6 @@ export const me = async (req, res) => {
   }
 };
 
-// ---------------- Update User ----------------
 export const updateUser = async (req, res) => {
   try {
     const updates = { ...req.body };
@@ -144,7 +139,6 @@ export const updateUser = async (req, res) => {
   }
 };
 
-// ---------------- Delete User ----------------
 export const deleteUser = async (req, res) => {
   try {
     await User.findByIdAndDelete(req.user._id);
@@ -159,7 +153,6 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-//-------------------Verify User Mail----------------------------
 export const verifyUser= async(req,res)=>{
 try {
   const { userMail, code } = req.body;
@@ -189,8 +182,6 @@ try {
 }
 };
 
-
-// ---------------- Forgot Password ----------------
 export const forgotPassword = async (req, res) => {
   try {
     const { userMail } = req.body;
@@ -199,20 +190,17 @@ export const forgotPassword = async (req, res) => {
       return res.status(400).json({ message: "Email is required" });
     }
 
-    // ✅ find by userMail (not email)
     const user = await User.findOne({ userMail });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // ✅ generate reset code
     const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     user.resetPasswordCode = resetCode;
-    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
+    user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; 
     await user.save();
 
-    // ✅ send mail with reset code
     try {
       await sendVerificationEmail(userMail, resetCode);
     } catch (err) {
@@ -227,7 +215,6 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-// ---------------- Verify Reset Code ----------------
 export const verifyResetCode = async (req, res) => {
   try {
     const { userMail, code } = req.body;
@@ -251,11 +238,10 @@ export const verifyResetCode = async (req, res) => {
       return res.status(400).json({ message: "Invalid code" });
     }
 
-    // ✅ If code matches and not expired, issue resetToken
     const resetToken = jwt.sign(
       { id: user._id, purpose: "password_reset" },
       process.env.JWT_SECRET,
-      { expiresIn: "10m" } // 10 minutes
+      { expiresIn: "10m" } 
     );
 
     res.json({ message: "Code verified", resetToken });
