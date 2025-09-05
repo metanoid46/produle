@@ -64,7 +64,6 @@ export const createProject = async (req, res) => {
   try {
     await newProject.save();
 
-    // Emit real-time event
     req.app.get('io').emit('projectCreated', newProject);
 
     res.status(201).json({ success: true, message: 'Data added successfully', data: newProject });
@@ -90,7 +89,6 @@ export const deleteProject = async (req, res) => {
 
     await project.deleteOne();
 
-    // Emit real-time event
     req.app.get('io').emit('projectDeleted', { id });
 
     res.status(200).json({ success: true, message: 'Project deleted' });
@@ -125,7 +123,6 @@ export const updateProject = async (req, res) => {
       runValidators: true,
     });
 
-    // Emit real-time event
     req.app.get('io').emit('projectUpdated', updatedProject);
 
     res.status(200).json({ success: true, data: updatedProject });
@@ -150,7 +147,7 @@ export const updateStepStatus = async (req, res) => {
 
     await project.save();
 
-    // Emit real-time event
+
     req.app.get('io').emit('stepStatusUpdated', { projectId, step });
 
     res.json({ success: true, message: 'Step status updated', step });
