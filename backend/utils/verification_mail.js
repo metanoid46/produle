@@ -13,7 +13,7 @@ export async function sendVerificationEmail(userMail, code) {
 
    try {
     const info=await transporter.sendMail({
-      from: `"Test App" <${process.env.BREVO_USER}>`,
+      from: `"Produle" <${process.env.BREVO_USER}>`,
       to: userMail,
       subject: "Verify your email",
       text: `Your verification code is: ${code}`,

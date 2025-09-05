@@ -13,7 +13,6 @@ const VerifyPage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const userMail = location.state?.userMail || '';
 
- console.log("Verifying:", userMail, code); // Debug
 
 const handleVerify = async () => {
   if (!userMail) {

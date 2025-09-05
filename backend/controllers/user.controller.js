@@ -189,34 +189,87 @@ try {
 }
 };
 
+
+// ---------------- Forgot Password ----------------
 export const forgotPassword = async (req, res) => {
   try {
     const { userMail } = req.body;
-    if (!userMail) return res.status(400).json({ message: "Email is required" });
 
+    if (!userMail) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // ✅ find by userMail (not email)
     const user = await User.findOne({ userMail });
-    // For privacy, respond success even if user not found
-    if (!user) return res.json({ message: "If that account exists, we sent a code." });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    const code = crypto.randomInt(100000, 999999).toString();
-    user.resetPasswordCode = code;
+    // ✅ generate reset code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.resetPasswordCode = resetCode;
     user.resetPasswordExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
     await user.save();
 
-    await sendResetCodeEmail(userMail, code);
+    // ✅ send mail with reset code
+    try {
+      await sendVerificationEmail(userMail, resetCode);
+    } catch (err) {
+      console.error("Email send error:", err);
+      return res.status(500).json({ message: "Failed to send email" });
+    }
 
-    res.json({ message: "Reset code sent to email." });
+    res.json({ message: "Verification code sent to your email" });
   } catch (err) {
-    console.error("forgotPassword error:", err);
+    console.error("Forgot Password error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ---------------- Verify Reset Code ----------------
+export const verifyResetCode = async (req, res) => {
+  try {
+    const { userMail, code } = req.body;
+
+    if (!userMail || !code) {
+      return res.status(400).json({ message: "Email and code are required" });
+    }
+
+    const user = await User.findOne({ userMail });
+    if (!user) return res.status(400).json({ message: "User not found" });
+
+    if (!user.resetPasswordCode || !user.resetPasswordExpires) {
+      return res.status(400).json({ message: "No reset request found" });
+    }
+
+    if (user.resetPasswordExpires < Date.now()) {
+      return res.status(400).json({ message: "Code expired" });
+    }
+
+    if (user.resetPasswordCode !== code) {
+      return res.status(400).json({ message: "Invalid code" });
+    }
+
+    // ✅ If code matches and not expired, issue resetToken
+    const resetToken = jwt.sign(
+      { id: user._id, purpose: "password_reset" },
+      process.env.JWT_SECRET,
+      { expiresIn: "10m" } // 10 minutes
+    );
+
+    res.json({ message: "Code verified", resetToken });
+  } catch (err) {
+    console.error("verifyResetCode error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 export const resetPassword = async (req, res) => {
   try {
-    const { resetToken, newPassword, newPasswordConfirm } = req.body;
+    const { userMail, newPassword, newPasswordConfirm } = req.body;
 
-    if (!resetToken) return res.status(400).json({ message: "Missing reset token" });
+    if (!userMail) return res.status(400).json({ message: "Email is required" });
     if (!newPassword || !newPasswordConfirm) {
       return res.status(400).json({ message: "New password and confirmation are required" });
     }
@@ -224,32 +277,11 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    let decoded;
-    try {
-      decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
-    } catch {
-      return res.status(400).json({ message: "Invalid or expired reset token" });
-    }
+    const user = await User.findOne({ userMail }).select("+password");
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (decoded.purpose !== "password_reset") {
-      return res.status(400).json({ message: "Invalid token purpose" });
-    }
-
-    const user = await User.findById(decoded.id).select("+password");
-    if (!user) return res.status(400).json({ message: "User not found" });
-
-    // Optional: ensure there's an active reset session
-    if (!user.resetPasswordCode || !user.resetPasswordExpires || user.resetPasswordExpires < Date.now()) {
-      return res.status(400).json({ message: "No active reset session or it expired" });
-    }
-
-    // Save new password
     user.password = await bcrypt.hash(newPassword, 12);
     user.passwordChangedAt = new Date();
-
-    // Clear reset fields
-    user.resetPasswordCode = undefined;
-    user.resetPasswordExpires = undefined;
 
     await user.save();
 
