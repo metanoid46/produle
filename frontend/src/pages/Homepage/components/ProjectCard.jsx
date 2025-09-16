@@ -4,7 +4,7 @@ import ProjectSteps from './ProjectSteps';
 import ProjectProgress from './ProjectProgress';
 import API from '../../../API/axiosIOnstance';
 
-const ProjectCard = ({ project, enums, messageApi, token, navigate, setProjects }) => {
+const ProjectCard = ({ project, enums, messageApi, token, navigate }) => {
   const bgColor = token.colorTextBase;
   const text = token.colorBgLayout;
 

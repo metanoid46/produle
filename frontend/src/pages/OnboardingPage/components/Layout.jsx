@@ -1,15 +1,14 @@
-import React, { Children, useContext, useState } from 'react';
+import React, { Children, useContext} from 'react';
 import { Card, Input, Button, Typography, message } from 'antd';
 import { ThemeContext } from '../../../Themes/ThemeManager';
-import { useNavigate } from 'react-router-dom';
 import logoLight from '../../../assets/logoLight.png'
 const Layout  = ({ children }) => {
     const { token } = useContext(ThemeContext);
-    const navigate = useNavigate();
-    const backgroundColor = token.colorTextBase;
-    const isMobile = window.innerWidth < 768;
 
-    const [messageApi, contextHolder] = message.useMessage();
+    const backgroundColor = token.colorTextBase;
+
+
+    const [contextHolder] = message.useMessage();
     return (
     <>
           <div

@@ -1,6 +1,5 @@
-import React, { useContext, useState } from 'react';
+import { useState } from 'react';
 import { Card, Input, Button, Typography, message } from 'antd';
-import { ThemeContext } from '../../Themes/ThemeManager';
 import { useNavigate } from 'react-router-dom';
 import API from '../../API/axiosIOnstance';
 import Layout from './components/layout';
@@ -8,7 +7,6 @@ import Layout from './components/layout';
 const { Title } = Typography;
 
 const ForgotPassword = () => {
-  const { token } = useContext(ThemeContext);
   const navigate = useNavigate();
 
   // Steps: email → code → reset

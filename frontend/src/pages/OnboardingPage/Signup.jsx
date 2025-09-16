@@ -1,8 +1,7 @@
-import React, { useContext,useState } from 'react';
+import React, { useState } from 'react';
 import { Card, Input, Button, Typography , message} from 'antd';
 import { ThemeContext } from '../../Themes/ThemeManager';
 import { useNavigate } from 'react-router-dom';
-import logoLight from '../../assets/logoLight.png'
 import API from '../../API/axiosIOnstance';
 import Layout from './components/layout';
 
@@ -11,11 +10,9 @@ import Layout from './components/layout';
 const { Title } = Typography;
 
 const Signup = () => {
-    const { token } = useContext(ThemeContext);
     const navigate=useNavigate();
-    const backgroundColor = token.colorTextBase;
     const isMobile = window.innerWidth < 768;
-    const [messageApi, contextHolder] = message.useMessage();
+    const [messageApi] = message.useMessage();
 
 
     const [formData, setFormData] = useState({

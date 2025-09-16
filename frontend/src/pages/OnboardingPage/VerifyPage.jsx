@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Card, Input, Button, Typography, message } from 'antd';
+import  { useState } from 'react';
+import { Input, Button, Typography, message } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../../API/axiosIOnstance';
 import Layout from './components/layout';
@@ -10,7 +10,7 @@ const VerifyPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [code, setCode] = useState('');
-  const [messageApi, contextHolder] = message.useMessage();
+  const [messageApi] = message.useMessage();
   const userMail = location.state?.userMail || '';
 
 
