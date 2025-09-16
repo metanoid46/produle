@@ -1,65 +1,26 @@
-import React, { Children, useContext} from 'react';
-import { Card, Input, Button, Typography, message } from 'antd';
+import React, { useContext } from 'react';
+import { Card, message } from 'antd';
 import { ThemeContext } from '../../../Themes/ThemeManager';
-import logoLight from '../../../assets/logoLight.png'
-const Layout  = ({ children }) => {
-    const { token } = useContext(ThemeContext);
+import logoLight from '../../../assets/logoLight.png';
 
-    const backgroundColor = token.colorTextBase;
+const Layout = ({ children }) => {
+  const { token } = useContext(ThemeContext);
+  const backgroundColor = token?.colorTextBase || '#f0f2f5';
+  const [_, contextHolder] = message.useMessage();
 
-
-    const [contextHolder] = message.useMessage();
-    return (
-    <>
-          <div
-        style={{
-            height: '100vh',
-            width: '100vw',
-            display: 'flex',
-            backgroundColor: backgroundColor,
-            flexDirection:'column',
-            overflow:'hidden'
-          }}
-        >
-  
-    <div
-      style={{
-        
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: backgroundColor,
-        fontFamily: '"Pixelify Sans", sans-serif'
-
-      }}
-    >
-
-        
+  return (
+    <div style={{ height: '100vh', width: '100vw', display: 'flex', backgroundColor, flexDirection:'column', overflow:'hidden' }}>
       {contextHolder}
-      <Card
-      title={
-        <img src={logoLight} alt="logo" style={{
-          width:'3vw',
-          height:'auto',
-          padding:'1vh',
-            objectFit: 'contain',}}/>
-      }
-        style={{
-          width: '80%',
-          height: '90%',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-        }}
-      >
-        {children}
-      </Card>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Pixelify Sans", sans-serif' }}>
+        <Card
+          title={<img src={logoLight} alt="logo" style={{ width:'3vw', height:'auto', padding:'1vh', objectFit: 'contain' }} />}
+          style={{ width: '80%', height: '90%', display: 'flex', flexDirection: 'column', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', overflow: 'auto' }}
+        >
+          {children}
+        </Card>
       </div>
-      </div>
-      </>
-  )
-}
+    </div>
+  );
+};
 
-export default Layout
+export default Layout;

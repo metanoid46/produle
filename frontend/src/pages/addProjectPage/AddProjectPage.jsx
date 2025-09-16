@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Form,
   Input,
@@ -9,6 +9,7 @@ import {
   Card,
   Typography,
   Divider,
+  message
 } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -18,11 +19,20 @@ import API from '../../API/axiosIOnstance';
 const { Title } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
-const isMobile = window.innerWidth < 768;
 
 const AddProjectPage = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(false);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  // responsive
+  useEffect(() => {
+    const updateWidth = () => setIsMobile(window.innerWidth < 768);
+    updateWidth();
+    window.addEventListener('resize', updateWidth);
+    return () => window.removeEventListener('resize', updateWidth);
+  }, []);
 
   const onFinish = async (values) => {
     try {
@@ -40,18 +50,20 @@ const AddProjectPage = () => {
         })) || [],
       };
 
-      const res = await API.post('/projects/addproject', payload);
-      console.log(res.data);
+      await API.post('/projects/addproject', payload);
+      messageApi.success('Project created successfully!');
       navigate('/home');
     } catch (error) {
       console.error('Error creating project:', error);
+      messageApi.error('Failed to create project.');
     }
   };
 
   return (
     <div style={{ padding: '2rem' }}>
+      {contextHolder}
       <Card style={{ overflow: 'auto', height: '80vh' }}>
-        <Title level={3} style={{ position: 'sticky' }}>Create New Project</Title>
+        <Title level={3}>Create New Project</Title>
 
         <Form
           form={form}
@@ -72,11 +84,11 @@ const AddProjectPage = () => {
           </Form.Item>
 
           <div style={{ display: 'flex', gap: '1rem', flexDirection: isMobile ? 'column' : 'row' }}>
-            <Form.Item label="Start Date" name="startDate">
+            <Form.Item label="Start Date" name="startDate" style={{ flex: 1 }}>
               <DatePicker style={{ width: '100%' }} />
             </Form.Item>
 
-            <Form.Item label="End Date" name="endDate">
+            <Form.Item label="End Date" name="endDate" style={{ flex: 1 }}>
               <DatePicker style={{ width: '100%' }} />
             </Form.Item>
           </div>
@@ -102,7 +114,6 @@ const AddProjectPage = () => {
           </Form.Item>
 
           <Divider>Project Steps</Divider>
-
           <Form.List name="steps">
             {(fields, { add, remove }) => (
               <>
@@ -112,13 +123,13 @@ const AddProjectPage = () => {
                       <Form.Item
                         {...restField}
                         name={[name, 'name']}
-                        rules={[{ required: false, message: 'Enter step name' }]}
+                        rules={[{ required: true, message: 'Enter step name' }]}
                         style={{ flex: 2 }}
                       >
                         <Input placeholder={`Step ${index + 1} Name`} />
                       </Form.Item>
 
-                      <Form.Item {...restField} name={[name, 'status']} style={{ flex: 1 }}>
+                      <Form.Item {...restField} name={[name, 'status']} style={{ flex: 1 }} rules={[{ required: true }]}>
                         <Select>
                           <Option value="Not Started">Not Started</Option>
                           <Option value="In progress">In progress</Option>
@@ -126,7 +137,7 @@ const AddProjectPage = () => {
                         </Select>
                       </Form.Item>
 
-                      <Form.Item {...restField} name={[name, 'order']} style={{ width: 80 }}>
+                      <Form.Item {...restField} name={[name, 'order']} style={{ width: 80 }} rules={[{ required: true }]}>
                         <Input type="number" placeholder="Order" />
                       </Form.Item>
                     </div>
@@ -143,7 +154,6 @@ const AddProjectPage = () => {
           </Form.List>
 
           <Divider />
-
           <Form.Item>
             <div style={{ display: 'flex', gap: '1rem' }}>
               <Button type="primary" htmlType="submit">

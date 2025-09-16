@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Button, message, Carousel, Card } from 'antd';
+import { Button, message } from 'antd';
 import { ThemeContext } from '../../Themes/ThemeManager';
 import { SocketContext } from '../../utils/SocketContext.jsx';
 import API from '../../API/axiosIOnstance';
@@ -10,7 +10,7 @@ import EmptyProjects from './components/EmptyProjects';
 
 const HomePage = () => {
   const navigate = useNavigate();
-  const { token } = useContext(ThemeContext);
+  const { token } = useContext(ThemeContext) || {};
   const socket = useContext(SocketContext);
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -21,9 +21,10 @@ const HomePage = () => {
   const fetchProjects = async () => {
     try {
       const res = await API.get('/projects/');
-      setProjects(res.data.data);
+      setProjects(res.data.data || []);
     } catch (error) {
       console.error('Failed to fetch projects: ' + error.message);
+      messageApi.error('Failed to fetch projects');
     }
   };
 
@@ -31,7 +32,7 @@ const HomePage = () => {
   const fetchEnums = async () => {
     try {
       const res = await API.get('/projects/project-enums');
-      setEnums(res.data);
+      setEnums(res.data || { status: [], priority: [], stepStatus: [] });
     } catch (err) {
       console.error(err);
     }
@@ -46,67 +47,59 @@ const HomePage = () => {
   useEffect(() => {
     if (!socket) return;
 
-    socket.on('projectCreated', (newProject) => {
+    const projectCreated = (newProject) => {
       setProjects((prev) => [newProject, ...prev]);
       messageApi.info(`Project "${newProject.name}" created`);
-    });
+    };
 
-    socket.on('projectUpdated', (updatedProject) => {
+    const projectUpdated = (updatedProject) => {
       setProjects((prev) =>
         prev.map((p) => (p._id === updatedProject._id ? updatedProject : p))
       );
       messageApi.info(`Project "${updatedProject.name}" updated`);
-    });
+    };
 
-    socket.on('projectDeleted', ({ id }) => {
+    const projectDeleted = ({ id }) => {
       setProjects((prev) => prev.filter((p) => p._id !== id));
       messageApi.info('A project was deleted');
-    });
+    };
 
-    socket.on('stepStatusUpdated', ({ projectId, step }) => {
-      setProjects((prev) =>
-        prev.map((p) =>
-          p._id === projectId
-            ? { ...p, steps: p.steps.map((s) => (s._id === step._id ? step : s)) }
-            : p
-        )
-      );
-      messageApi.info('Step status updated');
-    });
+    socket.on('projectCreated', projectCreated);
+    socket.on('projectUpdated', projectUpdated);
+    socket.on('projectDeleted', projectDeleted);
 
     return () => {
-      socket.off('projectCreated');
-      socket.off('projectUpdated');
-      socket.off('projectDeleted');
-      socket.off('stepStatusUpdated');
+      socket.off('projectCreated', projectCreated);
+      socket.off('projectUpdated', projectUpdated);
+      socket.off('projectDeleted', projectDeleted);
     };
   }, [socket, messageApi]);
 
   return (
-    <div>
+    <div style={{ padding: '2rem' }}>
       {contextHolder}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1>Projects</h1>
-        <Button onClick={() => navigate('/addProject')}>Add Project</Button>
+        <Button type="primary" onClick={() => navigate('/addProject')}>Add Project</Button>
       </div>
 
-      <Carousel arrows infinite>
-        {projects.length > 0 ? (
-          projects.map((project) => (
-            <ProjectCard
-              key={project._id}
-              project={project}
-              enums={enums}
-              messageApi={messageApi}
-              token={token}
-              navigate={navigate}
-              setProjects={setProjects}
-            />
-          ))
-        ) : (
-          <EmptyProjects />
-        )}
-      </Carousel>
+      {projects.length > 0 ? (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'flex-start' }}>
+          {projects.map((project) => (
+            <div key={project._id} style={{ flex: '1 1 45%', minWidth: 300 }}>
+              <ProjectCard
+                project={project}
+                enums={enums}
+                messageApi={messageApi}
+                token={token}
+                navigate={navigate}
+              />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyProjects />
+      )}
     </div>
   );
 };
