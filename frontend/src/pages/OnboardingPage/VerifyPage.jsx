@@ -2,7 +2,7 @@ import  { useState } from 'react';
 import { Input, Button, Typography, message } from 'antd';
 import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../../API/axiosIOnstance';
-import Layout from './components/layout';
+import Layout from './components/Layout';
 
 const { Title } = Typography;
 
