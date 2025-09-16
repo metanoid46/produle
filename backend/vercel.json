@@ -1,17 +1,13 @@
 {
-    "installCommand": "npm install --legacy-peer-deps",
-    "version":2,
-    "builds":[
-        {
-            "src":"index.js",
-            "use":"@vercel/node"
-        },
-        {
-            "src":"src/**/*",
-            "use":"@vercel/static"
-        }        
-    ],
-    "routes":[
-        {"src":"/(.*)", "dest":"/"}
-    ]
+    "installCommand": "npm install",
+{
+  "version": 2,
+  "builds": [
+    { "src": "backend/index.js", "use": "@vercel/node" },
+    { "src": "frontend/vite.config.js", "use": "@vercel/static-build", "config": { "distDir": "frontend/dist" } }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "backend/index.js" },
+    { "src": "/(.*)", "dest": "frontend/dist/$1" }
+  ]
 }
