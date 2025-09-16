@@ -1,25 +1,20 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import { connectDB } from './config/db.js';
-import projectRoutes from './routes/project.route.js';
-import userRoutes from './routes/user.route.js';
-import jwt from 'jsonwebtoken';
 import cors from 'cors';
 import http from 'http';
 import { Server } from 'socket.io';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import { connectDB } from './config/db.js';
+import projectRoutes from './routes/project.route.js';
+import userRoutes from './routes/user.route.js';
 
 dotenv.config();
 
-const PORT = process.env.PORT;
-const PORT_FRONT = process.env.BASE_FRONT;
+const PORT = process.env.PORT || 5000;
+const PORT_FRONT = process.env.BASE_FRONT || 'http://localhost:5173';
 
 const app = express();
-const server = http.createServer(app); 
-
-
+const server = http.createServer(app);
 
 export const io = new Server(server, {
   cors: {
@@ -32,26 +27,21 @@ export const io = new Server(server, {
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: PORT_FRONT,  
+  origin: PORT_FRONT,
   credentials: true
 }));
 
 app.use('/api/projects', projectRoutes);
 app.use('/api/user', userRoutes);
 
-const createToken = (user) => {
-  return jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN
-  });
-};
-
 app.set('io', io);
+
 io.on('connection', (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
   socket.on('message', (data) => {
     console.log('Message received:', data);
-    io.emit('message', data); 
+    io.emit('message', data);
   });
 
   socket.on('disconnect', () => {
@@ -59,8 +49,11 @@ io.on('connection', (socket) => {
   });
 });
 
+const startServer = async () => {
+  await connectDB();
+  server.listen(PORT, () => {
+    console.log(`Server started at http://localhost:${PORT}`);
+  });
+};
 
-server.listen(PORT, () => {
-  connectDB();
-  console.log(`Server started at http://localhost:${PORT}`);
-});
+startServer();
