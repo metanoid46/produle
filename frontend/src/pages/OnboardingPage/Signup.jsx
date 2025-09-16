@@ -41,8 +41,10 @@ const Signup = () => {
         userMail: formData.email,         
         password: formData.password,
         passwordConfirm: formData.confirmPassword,
-      });
-
+      },
+    {
+      withCredentials: false 
+    });
        messageApi.info("Signup successful!");
        navigate('/verify', { state: { userMail: formData.email } });
       console.log(res.data);

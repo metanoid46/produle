@@ -13,6 +13,6 @@ router.post('/verify',verifyUser)
 router.put('/profile/:id', protectRoute, updateUser);
 router.delete('/delete/:id', protectRoute, deleteUser);
 router.post("/forgot-password", forgotPassword);
-router.post("verify-reset",verifyResetCode)
+router.post("/verify-reset",verifyResetCode)
 router.post("/reset-password", resetPassword);
 export default router;

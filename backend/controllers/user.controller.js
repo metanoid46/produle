@@ -3,6 +3,7 @@ import crypto from "crypto";
 import User from '../models/users.model.js';
 import jwt from 'jsonwebtoken';
 import nodemailer from "nodemailer";
+import {sendResetMail} from '../utils/reset_mail.js'
 import {sendVerificationEmail} from '../utils/verification_mail.js'
 
 export const signup = async (req, res) => {
@@ -202,7 +203,7 @@ export const forgotPassword = async (req, res) => {
     await user.save();
 
     try {
-      await sendVerificationEmail(userMail, resetCode);
+      await sendResetMail(userMail, resetCode);
     } catch (err) {
       console.error("Email send error:", err);
       return res.status(500).json({ message: "Failed to send email" });
@@ -253,9 +254,22 @@ export const verifyResetCode = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { userMail, newPassword, newPasswordConfirm } = req.body;
+    const { userMail, newPassword, newPasswordConfirm, resetToken } = req.body;
 
-    if (!userMail) return res.status(400).json({ message: "Email is required" });
+    if (!resetToken) return res.status(400).json({ message: "Reset token required" });
+
+   
+    let decoded;
+    try {
+      decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    } catch (err) {
+      return res.status(400).json({ message: "Invalid or expired reset token" });
+    }
+
+    if (decoded.purpose !== "password_reset") {
+      return res.status(400).json({ message: "Invalid reset token purpose" });
+    }
+
     if (!newPassword || !newPasswordConfirm) {
       return res.status(400).json({ message: "New password and confirmation are required" });
     }
@@ -263,11 +277,15 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    const user = await User.findOne({ userMail }).select("+password");
+    const user = await User.findById(decoded.id).select("+password");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     user.password = await bcrypt.hash(newPassword, 12);
     user.passwordChangedAt = new Date();
+
+  
+    user.resetPasswordCode = undefined;
+    user.resetPasswordExpires = undefined;
 
     await user.save();
 
@@ -277,3 +295,4 @@ export const resetPassword = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
