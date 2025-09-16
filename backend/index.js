@@ -60,25 +60,6 @@ io.on('connection', (socket) => {
 });
 
 
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-/* if (process.env.NODE_ENV === "production") {
-  // Serve static files from React build
-  const frontendPath = path.join(__dirname, "frontend", "dist");
-  app.use(express.static(frontendPath));
-
-  // Handle client-side routing for SPA
-  app.get("*", (req, res, next) => {
-    // Skip API routes
-    if (req.path.startsWith("/api")) {
-      return next();
-    }
-    res.sendFile(path.join(frontendPath, "index.html"));
-  });
-} */
-
 server.listen(PORT, () => {
   connectDB();
   console.log(`Server started at http://localhost:${PORT}`);
