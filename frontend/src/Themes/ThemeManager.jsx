@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useMemo, useState, useEffect } from 'react';
 import { ConfigProvider } from 'antd';
-import { darkTheme, lightTheme } from './themes';
+import { darkTheme, lightTheme } from './themes.js';
 
 
 
