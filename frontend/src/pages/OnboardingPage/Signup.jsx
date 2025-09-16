@@ -3,7 +3,7 @@ import { Card, Input, Button, Typography , message} from 'antd';
 import { ThemeContext } from '../../Themes/ThemeManager';
 import { useNavigate } from 'react-router-dom';
 import API from '../../API/axiosIOnstance';
-import Layout from './components/layout';
+import Layout from './components/Layout';
 
 
 
