@@ -10,13 +10,30 @@ import userRoutes from './routes/user.route.js';
 
 dotenv.config();
 
+// --- Backend & frontend URLs ---
 const PORT = process.env.PORT || 5000;
-const FRONTEND_URL = process.env.BASE_FRONT || 'http://localhost:5173';
+const FRONTEND_URL = (process.env.BASE_FRONT || "http://localhost:5173").replace(/\/$/, "");
 
+// --- Express setup ---
 const app = express();
 const server = http.createServer(app);
 
-// === Socket.io setup ===
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+  origin: FRONTEND_URL,
+  credentials: true
+}));
+
+// --- Health check route ---
+app.get('/', (req, res) => res.send('Backend is running!'));
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+// --- API routes ---
+app.use('/api/projects', projectRoutes);
+app.use('/api/user', userRoutes);
+
+// --- Socket.IO setup ---
 export const io = new Server(server, {
   cors: {
     origin: FRONTEND_URL,
@@ -25,23 +42,6 @@ export const io = new Server(server, {
   }
 });
 
-// === Middleware ===
-app.use(express.json());
-app.use(cookieParser());
-app.use(cors({
-  origin: FRONTEND_URL,
-  credentials: true
-}));
-
-// === Root / health check route ===
-app.get('/', (req, res) => res.send('Backend is running!'));
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
-
-// === API routes ===
-app.use('/api/projects', projectRoutes);
-app.use('/api/user', userRoutes);
-
-// === Socket.io connection ===
 io.on('connection', (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
@@ -55,14 +55,11 @@ io.on('connection', (socket) => {
   });
 });
 
-// === Start server ===
+// --- Start server ---
 const startServer = async () => {
   await connectDB();
-
-  // Use dynamic port for Render or default 5000
-  const port = process.env.PORT || 5000;
-  server.listen(port, () => {
-    console.log(`Server started on port ${port}`);
+  server.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}`);
   });
 };
 
