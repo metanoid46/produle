@@ -4,8 +4,8 @@
   "type": "module",
   "main": "backend/index.js",
   "scripts": {
-    "dev": "nodemon backend/index.js",
-    "start": "node backend/index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
   "dependencies": {
     "@ant-design/charts": "^2.6.1",
