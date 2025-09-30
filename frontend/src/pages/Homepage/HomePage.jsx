@@ -4,7 +4,7 @@ import { ThemeContext } from '../../Themes/ThemeManager';
 import { SocketContext } from '../../utils/SocketContext.jsx';
 import API from '../../API/axiosIOnstance';
 import { useNavigate } from 'react-router-dom';
-
+import {Carousel} from 'antd';
 import ProjectCard from './components/ProjectCard';
 import EmptyProjects from './components/EmptyProjects';
 
@@ -84,9 +84,10 @@ const HomePage = () => {
       </div>
 
       {projects.length > 0 ? (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'flex-start' }}>
+        <Carousel  dots={true}
+    arrows style={{ width: '100%', margin:'0' }}>
           {projects.map((project) => (
-            <div key={project._id} style={{ flex: '1 1 45%', minWidth: 300 }}>
+            <div key={project._id} style={{ padding: '1rem', display: 'flex', justifyContent: 'center' }}>
               <ProjectCard
                 project={project}
                 enums={enums}
@@ -96,10 +97,11 @@ const HomePage = () => {
               />
             </div>
           ))}
-        </div>
+        </Carousel>
       ) : (
         <EmptyProjects />
       )}
+
     </div>
   );
 };

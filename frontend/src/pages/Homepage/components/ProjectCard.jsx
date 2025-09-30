@@ -38,7 +38,7 @@ const ProjectCard = ({ project, enums, messageApi, token, navigate }) => {
 
   return (
     <div style={{ width: '100%' }}>
-      <div style={{ display: 'flex', gap: '2rem', height: '75vh', width: '90vw', margin: '0 auto' }}>
+      <div style={{ display: 'flex', gap: '2rem', height: '65vh', width: '90vw', margin: '0 auto' }}>
         <Card
           title={
             <div style={{ display: 'flex', gap: '0.5vw' }}>
