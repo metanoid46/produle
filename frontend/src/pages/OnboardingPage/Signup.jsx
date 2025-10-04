@@ -55,6 +55,7 @@ const Signup = () => {
   return (
 
 <Layout>
+  {contextHolder}
         <div
           style={{
             height: '100%',
@@ -68,6 +69,7 @@ const Signup = () => {
             boxShadow: 'inset 0 0 5px rgba(0,0,0,0.1)',
           }}
         >
+          
         <Title level={2} style={{ marginBottom: '2rem' }}>
           Welcome to Produle
         </Title>
